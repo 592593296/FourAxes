@@ -85,7 +85,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-
+void Printf_Task(void);
 /* USER CODE END 0 */
 
 int main(void)
@@ -139,6 +139,7 @@ int main(void)
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
+  xTaskCreate(Printf_Task,"Printf_Task",1000,NULL,1,NULL);
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
 
@@ -159,8 +160,7 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-	  printf("hello\r\n");
-	  HAL_Delay(1);
+
   }
   /* USER CODE END 3 */
 
@@ -349,6 +349,17 @@ int _write(int file, char* ptr, int len)
     }
 
     return len;
+}
+
+void Printf_Task(void)
+{
+	while(1)
+	{
+		printf("hello\r\n");
+		HAL_Delay(1000);
+
+	}
+
 }
 /* USER CODE END 4 */
 
