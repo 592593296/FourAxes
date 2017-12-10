@@ -51,7 +51,7 @@
 #include "cmsis_os.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "iic.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -86,6 +86,8 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
 /* USER CODE BEGIN 0 */
 void Printf_Task(void);
+extern void ReadAccelGyro(void);
+
 /* USER CODE END 0 */
 
 int main(void)
@@ -118,7 +120,7 @@ int main(void)
   MX_I2C1_Init();
 
   /* USER CODE BEGIN 2 */
-
+  MPU9255Init();
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -139,7 +141,8 @@ int main(void)
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
-  xTaskCreate(Printf_Task,"Printf_Task",1000,NULL,1,NULL);
+//  xTaskCreate(Printf_Task,"Printf_Task",128,NULL,1,NULL);
+  xTaskCreate(ReadAccelGyro,"ReadAccelGyro",128,NULL,1,NULL);
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
 
@@ -356,7 +359,7 @@ void Printf_Task(void)
 	while(1)
 	{
 		printf("hello\r\n");
-		HAL_Delay(1000);
+		osDelay(1000);
 
 	}
 
@@ -374,6 +377,27 @@ void StartDefaultTask(void const * argument)
     osDelay(1);
   }
   /* USER CODE END 5 */ 
+}
+
+/**
+  * @brief  Period elapsed callback in non blocking mode
+  * @note   This function is called  when TIM4 interrupt took place, inside
+  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+  * a global variable "uwTick" used as application time base.
+  * @param  htim : TIM handle
+  * @retval None
+  */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+/* USER CODE BEGIN Callback 0 */
+
+/* USER CODE END Callback 0 */
+  if (htim->Instance == TIM4) {
+    HAL_IncTick();
+  }
+/* USER CODE BEGIN Callback 1 */
+
+/* USER CODE END Callback 1 */
 }
 
 /**
