@@ -57,6 +57,9 @@
 uint16_t ACCELBUFF[6];
 uint16_t GYROBUFF[6];
 uint16_t MAGBUFF[6];
+
+uint8_t value = 0x02;
+uint8_t cntl1 = 0x01;
 extern I2C_HandleTypeDef hi2c1;
 
 void MPU9255Init(void)
@@ -83,8 +86,7 @@ void ReadAccelGyro(void)
 	int16_t MAGY;
 	int16_t MAGZ;
 	uint16_t id;
-	uint8_t value = 0x02;
-	uint8_t cntl1 = 0x11;
+
 	while(1)
 	{
 		HAL_I2C_Mem_Read(&hi2c1,READ_DEVICEADD,ACCEL_XOUT_H,I2C_MEMADD_SIZE_8BIT,&ACCELBUFF[0],1,100);
@@ -108,11 +110,11 @@ void ReadAccelGyro(void)
 		GyroZ= (GYROBUFF[4]<<8) + GYROBUFF[5];
 
 		HAL_I2C_Mem_Write(&hi2c1, WRITE_DEVICEADD, 0x37, I2C_MEMADD_SIZE_8BIT, &value, 1, 100 );
+		HAL_I2C_Mem_Write(&hi2c1, 0x18, 0x0a, I2C_MEMADD_SIZE_8BIT, &cntl1, 1, 100 );
 //		osDelay(10);
 //		value = 0x11;
-		HAL_I2C_Mem_Write(&hi2c1, 0x18, 0x0a, I2C_MEMADD_SIZE_8BIT, &cntl1, 1, 100 );
 
-//		osDelay(10);
+		osDelay(10);
 		HAL_I2C_Mem_Read(&hi2c1,0x19,MAG_XOUT_L,I2C_MEMADD_SIZE_8BIT,&MAGBUFF[0],1,100);
 		HAL_I2C_Mem_Read(&hi2c1,0x19,MAG_XOUT_H,I2C_MEMADD_SIZE_8BIT,&MAGBUFF[1],1,100);
 		MAGX = (MAGBUFF[1]<<8) + MAGBUFF[0];

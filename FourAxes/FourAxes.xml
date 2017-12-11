@@ -4,6 +4,6 @@
     <name>FourAxes</name>
     <mcuId>stm32f103cbtx</mcuId>
     <dbgIF>SWD</dbgIF>
-    <dbgDEV>ST-LinkV2</dbgDEV>
+    <dbgDEV>ST-Link</dbgDEV>
   </board>
 </targetDefinitions>
