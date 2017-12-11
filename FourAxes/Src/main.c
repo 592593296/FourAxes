@@ -142,7 +142,7 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_THREADS */
 //  xTaskCreate(Printf_Task,"Printf_Task",128,NULL,1,NULL);
-  xTaskCreate(ReadAccelGyro,"ReadAccelGyro",128,NULL,1,NULL);
+  xTaskCreate(ReadAccelGyro,"ReadAccelGyro",256,NULL,1,NULL);
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
 
