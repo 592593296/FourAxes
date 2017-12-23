@@ -10,4 +10,11 @@
 
 
 
+
+
+void MPU9255Init(void);
+void ReadAccelGyro(void);
+
+
+
 #endif /* IIC_H_ */

@@ -114,7 +114,7 @@ void ReadAccelGyro(void)
 //		osDelay(10);
 //		value = 0x11;
 
-		osDelay(10);
+		osDelay(10);			//Delay affects the output
 		HAL_I2C_Mem_Read(&hi2c1,0x19,MAG_XOUT_L,I2C_MEMADD_SIZE_8BIT,&MAGBUFF[0],1,100);
 		HAL_I2C_Mem_Read(&hi2c1,0x19,MAG_XOUT_H,I2C_MEMADD_SIZE_8BIT,&MAGBUFF[1],1,100);
 		MAGX = (MAGBUFF[1]<<8) + MAGBUFF[0];

@@ -52,6 +52,8 @@
 
 /* USER CODE BEGIN Includes */
 #include "iic.h"
+#include "gprs.h"
+
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -60,6 +62,7 @@ I2C_HandleTypeDef hi2c1;
 TIM_HandleTypeDef htim1;
 
 UART_HandleTypeDef huart1;
+UART_HandleTypeDef huart2;
 
 osThreadId defaultTaskHandle;
 
@@ -74,6 +77,7 @@ static void MX_GPIO_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_I2C1_Init(void);
+static void MX_USART2_UART_Init(void);
 void StartDefaultTask(void const * argument);
                                     
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
@@ -87,7 +91,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 /* USER CODE BEGIN 0 */
 void Printf_Task(void);
 extern void ReadAccelGyro(void);
-
+extern void AT_Transmit(void);
 /* USER CODE END 0 */
 
 int main(void)
@@ -118,6 +122,7 @@ int main(void)
   MX_TIM1_Init();
   MX_USART1_UART_Init();
   MX_I2C1_Init();
+  MX_USART2_UART_Init();
 
   /* USER CODE BEGIN 2 */
   MPU9255Init();
@@ -142,7 +147,8 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_THREADS */
 //  xTaskCreate(Printf_Task,"Printf_Task",128,NULL,1,NULL);
-  xTaskCreate(ReadAccelGyro,"ReadAccelGyro",256,NULL,1,NULL);
+//  xTaskCreate(ReadAccelGyro,"ReadAccelGyro",256,NULL,1,NULL);
+  xTaskCreate(AT_Transmit,"AT_Transmit",256,NULL,1,NULL);
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
 
@@ -319,6 +325,25 @@ static void MX_USART1_UART_Init(void)
   huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
   huart1.Init.OverSampling = UART_OVERSAMPLING_16;
   if (HAL_UART_Init(&huart1) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+}
+
+/* USART2 init function */
+static void MX_USART2_UART_Init(void)
+{
+
+  huart2.Instance = USART2;
+  huart2.Init.BaudRate = 115200;
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+  huart2.Init.StopBits = UART_STOPBITS_1;
+  huart2.Init.Parity = UART_PARITY_NONE;
+  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart2) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
