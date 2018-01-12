@@ -59,7 +59,7 @@ uint16_t GYROBUFF[6];
 uint16_t MAGBUFF[6];
 
 uint8_t value = 0x02;
-uint8_t cntl1 = 0x01;
+uint8_t cntl1 = 0x11;
 extern I2C_HandleTypeDef hi2c1;
 
 void MPU9255Init(void)
@@ -67,8 +67,8 @@ void MPU9255Init(void)
 	HAL_I2C_Mem_Write(&hi2c1, WRITE_DEVICEADD, PWR_MGMT_1, I2C_MEMADD_SIZE_8BIT, (uint8_t *)0, 1, 100 );
 	HAL_I2C_Mem_Write(&hi2c1, WRITE_DEVICEADD, SMPLRT_DIV, I2C_MEMADD_SIZE_8BIT, (uint8_t *)6, 1, 100 );
 	HAL_I2C_Mem_Write(&hi2c1, WRITE_DEVICEADD, CONFIG, I2C_MEMADD_SIZE_8BIT, (uint8_t *)7, 1, 100 );
-	HAL_I2C_Mem_Write(&hi2c1, WRITE_DEVICEADD, GYRO_CONFIG, I2C_MEMADD_SIZE_8BIT, (uint8_t *)0x18, 1, 100 );
-	HAL_I2C_Mem_Write(&hi2c1, WRITE_DEVICEADD, ACCEL_CONFIG, I2C_MEMADD_SIZE_8BIT, (uint8_t *)1, 1, 100 );
+	HAL_I2C_Mem_Write(&hi2c1, WRITE_DEVICEADD, GYRO_CONFIG, I2C_MEMADD_SIZE_8BIT, (uint8_t *)0x18, 1, 100 );  //16.4LSB DPS/S
+	HAL_I2C_Mem_Write(&hi2c1, WRITE_DEVICEADD, ACCEL_CONFIG, I2C_MEMADD_SIZE_8BIT, (uint8_t *)1, 4, 100 );  //8192LSB/g  +-4g
 //	HAL_I2C_Mem_Write(&hi2c1, WRITE_DEVICEADD, PWR_MGMT_1, I2C_MEMADD_SIZE_8BIT, 1, 100 );
 
 
@@ -86,6 +86,17 @@ void ReadAccelGyro(void)
 	int16_t MAGY;
 	int16_t MAGZ;
 	uint16_t id;
+
+	float AccelXg = 0;
+	float AccelYg = 0.0;
+	float AccelZg = 0.0;
+	float GyroXv = 0.0;
+	float GyroYv = 0.0;
+	float GyroZv = 0.0;
+	float MAGXt = 0.0;
+	float MAGYt = 0.0;
+	float MAGZt = 0.0;
+
 
 	while(1)
 	{
@@ -110,7 +121,7 @@ void ReadAccelGyro(void)
 		GyroZ= (GYROBUFF[4]<<8) + GYROBUFF[5];
 
 		HAL_I2C_Mem_Write(&hi2c1, WRITE_DEVICEADD, 0x37, I2C_MEMADD_SIZE_8BIT, &value, 1, 100 );
-		HAL_I2C_Mem_Write(&hi2c1, 0x18, 0x0a, I2C_MEMADD_SIZE_8BIT, &cntl1, 1, 100 );
+		HAL_I2C_Mem_Write(&hi2c1, 0x18, 0x0a, I2C_MEMADD_SIZE_8BIT, &cntl1, 1, 100 );       //16bit dan ci cai yang  0.6 uT/LSB
 //		osDelay(10);
 //		value = 0x11;
 
@@ -127,12 +138,37 @@ void ReadAccelGyro(void)
 
 		HAL_I2C_Mem_Read(&hi2c1,0x19,0,I2C_MEMADD_SIZE_8BIT,&id,1,100);
 
-		printf("ACCEL x,y,z\t%d\t%d\t%d\t\r\n",AccelX,AccelY,AccelZ);
-		printf("GYRO x,y,z\t%d\t%d\t%d\t\r\n",GyroX,GyroY,GyroZ);
+		printf("ACCEL x,y,z\t%d\t%d\t%d\t",AccelX,AccelY,AccelZ);
+		printf("GYRO x,y,z\t%d\t%d\t%d\t",GyroX,GyroY,GyroZ);
 		printf("MAG x,y,z\t%d\t%d\t%d\t\r\n",MAGX,MAGY,MAGZ);
-		printf("id=%d\r\n",id);
+//		printf("id=%d\r\n",id);
 
-		osDelay(1000);
+		 AccelXg = AccelX* 1000 / 8192 ;
+		 AccelYg =AccelY* 1000 / 8192;
+		 AccelZg =AccelZ* 1000 / 8192;
+		 GyroXv =GyroX* 1000 / 16.4;
+		 GyroYv =GyroY* 1000 / 16.4;
+		 GyroZv =GyroZ* 1000 / 16.4;
+		 MAGXt =MAGX* 1000  *0.6;
+		 MAGYt =MAGY* 1000  *0.6;
+		 MAGZt =MAGZ* 1000  *0.6;
+
+
+//		 gcvt(AccelXg,6,buf);
+//		 sprintf(buf,"%10.2f\n",AccelXg);
+
+//		 printf("ACCEL xg,yg,zg\t%ld.%ld\t%ld.%ld\t%ld.%ld\t\r\n",(int32_t)AccelXg/1000,(uint32_t)AccelXg%1000,(int32_t)AccelYg/1000,(uint32_t)AccelYg%1000,(int32_t)AccelZg/1000,(uint32_t)AccelZg%1000);
+//		 printf("GYRO xv,yv,zv\t%ld.%ld\t%ld.%ld\t%ld.%ld\t\r\n",(int32_t)GyroXv/1000,(uint32_t)GyroXv%1000,(int32_t)GyroYv/1000,(uint32_t)GyroYv%1000,(int32_t)GyroZv/1000,(uint32_t)GyroZv%1000);
+//		 printf("MAG xt,yt,zt\t%ld.%ld\t%ld.%ld\t%ld.%ld\t\r\n",(int32_t)MAGXt/1000,(uint32_t)MAGXt%1000,(int32_t)MAGYt/1000,(uint32_t)MAGYt%1000,(int32_t)MAGZt/1000,(uint32_t)MAGZt%1000);
+
+
+//		 printf("ACCEL xg,yg,zg\t%f\t%f\t%f\t\r\n",AccelXg,AccelYg,AccelZg);
+//		 printf("GYRO xv,yv,zv\t%f\t%f\t%f\t\r\n",GyroXv,GyroYv,GyroZv);
+//		 printf("MAG xt,yt,zt\t%f\t%f\t%f\t\r\n",MAGXt,MAGYt,MAGZt);
+//		 printf("AccelXg %s\r\n",buf);
+
+		osDelay(10);
+
 
 	}
 
