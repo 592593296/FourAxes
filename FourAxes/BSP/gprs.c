@@ -9,6 +9,7 @@
 #include "stdio.h"
 #include "string.h"
 uint8_t atb[]="AT+IPR=115200;&W\r";
+uint8_t ate0[]="ATE0\r";
 uint8_t at[]="AT+CGSN\r";
 uint8_t rx[100];
 uint8_t num;
@@ -24,10 +25,12 @@ void AT_Transmit(void)
 //	{
 //		printf("at cheng gong\r\n");
 //	}
+	HAL_UART_Transmit(&huart2, atb, sizeof(atb)/sizeof(uint8_t), 0xffffff);
+	HAL_UART_Transmit(&huart2, ate0, sizeof(ate0)/sizeof(uint8_t), 0xffffff);
 	while(1)
 	{
 
-		if(HAL_OK == HAL_UART_Transmit(&huart2, atb, sizeof(at)/sizeof(uint8_t)-1, 0xffffff));
+		if(HAL_OK == HAL_UART_Transmit(&huart2, at, sizeof(at)/sizeof(uint8_t), 0xffffff));
 		{
 			printf("rx cheng gong\r\n");
 
